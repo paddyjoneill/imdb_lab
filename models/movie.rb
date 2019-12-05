@@ -3,24 +3,25 @@ require_relative('../db/sql_runner')
 class Movie
 
   attr_reader :id
-  attr_accessor :title, :genre
+  attr_accessor :title, :genre, :budget
 
   def initialize(options)
     @id = options['id'].to_i if options['id']
     @title = options['title']
     @genre = options['genre']
+    @budget = options['budget'].to_i
   end
 
   def save()
     sql = "
     INSERT INTO movies (
-      title, genre
+      title, genre, budget
     )
     VALUES
-    ($1, $2)
+    ($1, $2, $3)
     RETURNING id;
     "
-    values =[@title, @genre]
+    values =[@title, @genre, @budget]
     @id = SqlRunner.run(sql, values)[0]['id'].to_i
   end
 
@@ -51,12 +52,12 @@ class Movie
   def update()
     sql = "
     UPDATE movies SET (
-      title, genre
+      title, genre, budget
     ) = (
-      $1, $2
-    ) WHERE id = $3;
+      $1, $2, $3
+    ) WHERE id = $4;
     "
-    values = [@title, @genre, @id]
+    values = [@title, @genre, @budget, @id]
     SqlRunner.run(sql, values)
   end
 
@@ -71,6 +72,23 @@ class Movie
     results = SqlRunner.run(sql, values)
     stars = results.map { |star| Star.new(star) }
     return stars
+  end
+
+  def budget_remaining()
+    sql = "
+       SELECT castings.fee FROM castings
+       INNER JOIN movies
+       ON castings.movie_id = movies.id
+       WHERE movies.id = $1
+    "
+    values = [@id]
+    results = SqlRunner.run(sql,values)
+    fees = results.map { |fee| fee  }
+    remaining_budget = @budget
+    for fee in fees
+      remaining_budget -= fee['fee'].to_i
+    end
+    return remaining_budget
   end
 
 

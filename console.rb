@@ -9,7 +9,8 @@ Star.delete_all
 
 movie1 = Movie.new({
   'title' => 'The Godfather',
-  'genre' => 'drama'
+  'genre' => 'drama',
+  'budget' => 100000
  })
 movie1.save
 
