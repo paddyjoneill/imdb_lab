@@ -24,4 +24,20 @@ class Star
     @id = SqlRunner.run(sql, values)[0]['id'].to_i
   end
 
+  def self.all()
+    sql = "
+    SELECT * FROM stars
+    "
+    result = SqlRunner.run(sql)
+    stars = result.map{|star| Star.new(star)}
+    return stars
+  end
+
+  def self.delete_all()
+    sql = "
+    DELETE FROM stars
+    "
+    SqlRunner.run(sql)
+  end
+
 end
