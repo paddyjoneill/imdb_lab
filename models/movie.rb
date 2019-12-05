@@ -77,9 +77,7 @@ class Movie
   def budget_remaining()
     sql = "
        SELECT castings.fee FROM castings
-       INNER JOIN movies
-       ON castings.movie_id = movies.id
-       WHERE movies.id = $1
+       WHERE movie_id = $1
     "
     values = [@id]
     results = SqlRunner.run(sql,values)
